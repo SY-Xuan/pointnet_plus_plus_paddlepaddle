@@ -32,29 +32,29 @@ def parse_args():
     parser.add_argument('--log_dir', type=str, required=True, help='Experiment root')
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
-    parser.add_argument('--num_votes', type=int, default=3, help='Aggregate classification scores with voting')
+    parser.add_argument('--num_votes', type=int, default=1, help='Aggregate classification scores with voting')
     return parser.parse_args()
 
 def test(model, loader, num_class=40, vote_num=1):
+
     mean_correct = []
 
     model.eval()
-
+    
     for j, (points, target) in tqdm(enumerate(loader), total=len(loader)):
-        
+
+        # points, target = points.cuda(), target.cuda()
 
         points = points.transpose((0, 2, 1))
-        vote_pool = paddle.zeros((target.shape[0], num_class))
-        for _ in range(vote_num):
-            pred, _ = model(points)
-            vote_pool += pred
-        pred = vote_pool / vote_num
+        
+        pred, _ = model(points)
         pred_choice = paddle.argmax(pred, axis=1)
-
+        
         correct = pred_choice.equal(target).astype("float32").sum()
         mean_correct.append(correct.numpy()[0] / float(points.shape[0]))
 
     instance_acc = np.mean(mean_correct)
+
     return instance_acc
 
 def main(args):
@@ -85,7 +85,7 @@ def main(args):
     data_path = 'dataset/modelnet40_normal_resampled/'
 
     test_dataset = ModelNetDataset(root=data_path, args=args, split='test', process_data=False)
-    testDataLoader = paddle.io.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
+    testDataLoader = paddle.io.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=1)
 
     '''MODEL LOADING'''
     num_class = args.num_category
