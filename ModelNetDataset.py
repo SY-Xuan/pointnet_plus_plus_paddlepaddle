@@ -42,6 +42,14 @@ def farthest_point_sample(point, npoint):
 
 
 class ModelNetDataset(Dataset):
+    # 数据读取
+    """
+    Input:
+        root: 数据集根目录
+        args: 传入的参数
+        split: 训练集or测试集
+        process_data: 预处理数据
+    """
     def __init__(self,
                  root,
                  args,

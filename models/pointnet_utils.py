@@ -33,7 +33,6 @@ class STN3d(paddle.nn.Layer):
         x = self.relu(self.bn4(self.fc1(x)))
         x = self.relu(self.bn5(self.fc2(x)))
         x = self.fc3(x)
-        #TODO: 这里可能会出现行为差异
         iden = paddle.to_tensor(np.array([1,0,0,0,1,0,0,0,1]).astype(np.float32)).reshape((1,9)).tile((batchsize,1))
         # iden = iden.cuda()
         x = x + iden
@@ -72,7 +71,6 @@ class STNkd(paddle.nn.Layer):
         x = self.relu(self.bn5(self.fc2(x)))
         x = self.fc3(x)
 
-        #TODO: 这里可能会出现行为差异
         iden = paddle.to_tensor(np.eye(self.k).flatten().astype(np.float32)).reshape((1, self.k*self.k)).tile((batchsize, 1))
         # iden = iden.cuda()
         x = x + iden
